@@ -14,7 +14,20 @@
     {% load static %}
     <link href="{% static 'css/bootstrap.css' %}" rel="stylesheet">
     <!-- Custom styles for this template -->
-    <link href="{% static 'css/portfolio.css' %}" rel="stylesheet">
+    <link href="{% static 'css/style.css' %}" rel="stylesheet">
+
+
+    <!-- ... -->
+    <!-- <script src="{% static 'js/jquery.min.js' %}"></script> -->
+    <script type="text/javascript" src="{% static 'bower_components/jquery/jquery.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'bower_components/moment/min/moment.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'bower_components/bootstrap/dist/js/bootstrap.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'bower_components/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js' %}"></script>
+    <link rel="stylesheet" href="/bower_components/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="/bower_components/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.min.css" />
+
+
+
 
   </head>
 
@@ -29,9 +42,10 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarResponsive">
           <ul class="navbar-nav ml-auto">
-            <li class="nav-item active">
-              <a class="nav-link" href="#">Home
-                <span class="sr-only">(current)</span>
+            <!-- <li class="nav-item active"> -->
+            <li class="nav-item ">
+              <a class="nav-link" href="{% url 'events:game' %}">Game
+                <!-- <span class="sr-only">(current)</span> -->
               </a>
             </li>
             {% if user.is_authenticated %}
@@ -41,6 +55,11 @@
             <li class="nav-item">
               <a class="nav-link" href="{% url 'accounts:logout' %}?next=/">Logout ({{user.username}})</a>
             </li>
+            {% if user.profile.attendant %}
+            <!-- <li class="nav-item">
+              <a class="nav-link" href="{% url 'accounts:logout' %}?next=/">Show everything</a>
+            </li> -->
+            {% endif %}
             {% else %}
             <li class="nav-item">
               <a class="nav-link" href="{% url 'register' %}">Join</a>
@@ -51,7 +70,7 @@
       </div>
     </nav>
     <!-- Page Content -->
-    <div class="container">
+    <div class="container main-content">
     	  
   {% block content %}
   {% endblock %}
@@ -70,7 +89,7 @@
     </footer>
 
     <!-- Bootstrap core JavaScript -->
-    <script src="{% static 'js/jquery.min.js' %}"></script>
+    
     <script src="{% static 'js/jquery4.min.js' %}"></script>
     <!-- <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script> -->
   </body>

@@ -16,8 +16,10 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from . import views
+from .api import login, sampleapi
 
 urlpatterns = [
+    path('secureImage/<path>/<id>', views.secureImage,  name='secureImage'),
     path('', views.index,  name='index'),
     path('admin/', admin.site.urls),
     path('register', views.register,name='register'),
@@ -25,6 +27,8 @@ urlpatterns = [
     path('accounts/', include('accounts.urls', namespace="accounts")),
     # path('accounts/', include('accounts.urls')),
     path('events/', include('events.urls', namespace="events")),
+    path('api/login', login),
+    path('api/sampleapi', sampleapi),
 
 ]
 # url(r'^', include('events.urls', namespace='events')),

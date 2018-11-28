@@ -4,21 +4,23 @@
 {% block content %}
 {% load static %}
    <!-- Portfolio Item Heading -->
+    {% if user.profile %}
       <h1 class="my-4">Your events
         <small>Your campus</small>
       </h1>
-
       <!-- Portfolio Item Row -->
       <div class="row">
-
         <div class="col-md-8">
-          <img class="img-fluid" src="http://placehold.it/750x500" alt="">
+        {% if featured != None %}
+          <img class="img-fluid" src="{% static 'img/astugate.jpg' %}" style="height: 500px" alt="">
+          {% else %}
+          <img class="img-fluid" src="{% static 'img/astugate.jpg' %}" style="height: 500px" alt="">
+        {% endif %}
         </div>
-
         <div class="col-md-4">
           {% if user.profile.organizer %}
           <h3 class="my-3">Post an event</h3>
-          <form action="{% url 'events:event' %}" method="post">
+          <form action="{% url 'events:event' %}" enctype="multipart/form-data" method="post">
             {% csrf_token %}
               <div class="form-group row">
                 <label for="inputEmail3" class="col-sm-2 col-form-label">Title</label>
@@ -29,14 +31,20 @@
               <div class="form-group row">
                 <label for="inputPassword3" class="col-sm-2 col-form-label">Detail</label>
                 <div class="col-sm-10">
-                  <textarea class="form-control" name="detail" id="inputPassword3" name="detail" rows="5" required></textarea>
+                  <textarea class="form-control" name="detail" id="inputPassword3" name="detail" rows="4" required></textarea>
+                </div>
+              </div>
+              <div class="form-group row">
+                <label for="inputPassword3" class="col-sm-2 col-form-label">Image</label>
+                <div class="col-sm-10">
+                  <input class="form-control" type="file" name="myimage">
                 </div>
               </div>
               <fieldset class="form-group">
                 <div class="row">
                   <legend class="col-form-label col-sm-2 pt-0">Tags</legend>
                   <div class="col-sm-10">
-                    <select name="interests" multiple name="categories"  class="form-control" required>
+                    <select multiple name="categories"  class="form-control" required>
                     {% for i in categories %}
                       <option value="{{i.id}}">{{i }}</option>
                     {% endfor %}
@@ -54,7 +62,7 @@
           <h3 class="my-3">Event Categories</h3>
           <ul>
             {% for i in categories %}
-            <li>{{i}}</li>
+            <li> <a href="{% url 'events:category' category_id=i.id %}">{{i}}</a> </li>
              {% endfor %}
           </ul>
         </div>
@@ -63,14 +71,14 @@
       <!-- /.row -->
 
       <!-- Related Projects Row -->
-      <h3 class="my-4">Related Projects</h3>
+      <h3 class="my-4">Events you may be interested in</h3>
 
       <div class="row">
 
         {% for i in events %}
         <div class="col-md-3 col-sm-6 mb-4">
           <a href="#">
-            <img class="img-fluid" src="http://placehold.it/500x300" alt="">
+            <img class="img-fluid" style="height: 120px; width: 120px;" src="{% url 'secureImage' path='event' id=i.id %}" alt="">
             <h1>{{i.title}}</h1>
             <h5>Organizer: {{i.created_by.username}}</h5>
             <p>{{i.detail}}</p>
@@ -78,6 +86,33 @@
         </div>
         {% endfor %}
 
+        <div class="col-md-12 col-sm-12 mb-12">
+          <div class="pagination">
+            <span class="step-links">
+                {% if events.has_previous %}
+                    <a href="?page=1">&laquo; first</a>
+                    <a href="?page={{ contacts.previous_page_number }}">previous</a>
+                {% endif %}
+
+                <span class="current">
+                    Page {{ events.number }} of {{ events.paginator.num_pages }}.
+                </span>
+
+                {% if events.has_next %}
+                    <a href="?page={{ events.next_page_number }}">next</a>
+                    <a href="?page={{ events.paginator.num_pages }}">last &raquo;</a>
+                {% endif %}
+            </span>
+        </div>
+      </div>
+
       </div>
       <!-- /.row -->
+
+
+      {% else %}
+      <h1 class="my-4">Please complete your registration
+        <small> <a href="{% url 'accounts:myaccount' %}">Click here</a>  </small>
+      </h1>
+      {% endif %}
 {% endblock %}

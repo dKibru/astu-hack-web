@@ -5,6 +5,13 @@
 
 <h2>My Account</h2>
 
+<label for="inputState">Name</label>
+<input disabled value="{{user.username}}"  class="form-control">
+<label for="inputState">Image</label>
+<img class="form-control img-responsive" style="height: 200px; width: 200px;" src="{% url 'secureImage' path='profile' id=user.id %}">
+
+
+
 {% if user.profile.organizer %}
   <label for="inputState">Role</label>
   <select disabled name="type" id="inputState" class="form-control">
@@ -32,7 +39,7 @@
   	</div>
 </form>
 {% endif %}
-<form action="{% url 'accounts:profile' %}" method="post">
+<form action="{% url 'accounts:profile' %}" enctype="multipart/form-data" method="post">
   {% csrf_token %}
   <div class="form-row">
     <div class="form-group col-md-12">
@@ -42,6 +49,10 @@
       {% else %}
       <input type="email" class="form-control" id="inputEmail4" name="email"  placeholder="Email">
       {% endif %}
+    </div>
+    <div class="form-group col-md-12">
+      <label for="inputState">Image</label>
+      <input class="form-control" type="file" name="myimage">
     </div>
     <div class="form-group col-md-12">
       <label for="inputState">My Interests</label>
@@ -54,6 +65,58 @@
         {% endfor %}
       </select>
     </div>
+
+    {% if user.profile.attendant %}
+    <!-- <div class="form-group col-md-12 row rows"> -->
+      <div class="form-group col-md-12">
+      <label for="inputState">Free Time</label>
+      </div>
+      <div class="form-group col-md-12">
+        {% for ft in freetimes %}
+         {{ft.day}} : From <input type="number" value="{{ft.start}}" name="from{{ ft.id }}"> 
+                        <select name="ampm1{{ ft.id }}">
+                          {% if ft.allday %}
+                          <option value="">select</option>
+                          <option value="am" >AM</option>
+                          <option value="pm" >PM</option>
+                          {% elif  ft.startampm == "am" %}
+                          <option value="am" selected>AM</option>
+                          <option value="pm">PM</option>
+                          {% elif ft.startampm == "pm" %}
+                          <option value="am" >AM</option>
+                          <option value="pm" selected>PM</option>
+                          {% else   %}
+                          <option value="">select</option>
+                          <option value="am" >AM</option>
+                          <option value="pm" >PM</option>
+                          {% endif   %}
+                        </select> 
+                        To <input value="{{ft.end}}" type="number" name="to{{ ft.id }}">  
+                        <select name="ampm2{{ ft.id }}">
+                          {% if ft.endampm == "am" %}
+                          <option value="am" selected>AM</option>
+                          <option value="pm">PM</option>
+                          {% elif ft.endampm == "pm" %}
+                          <option value="am" >AM</option>
+                          <option value="pm" selected>PM</option>
+                          {% else   %}
+                          <option value="">select</option>
+                          <option value="am" >AM</option>
+                          <option value="pm" >PM</option>
+                          {% endif   %}
+                        </select> 
+         {% if ft.allday %}
+         <input type="checkbox" name="all{{ ft.id }}" checked> All Day
+         {% else %}
+         <input type="checkbox" name="all{{ ft.id }}"> All Day
+         {% endif %}
+        <br>
+        {% endfor %}
+      </div>
+      <!-- </div> -->
+    <!-- </div> -->
+    {% endif %}
+
   </div>
   <!-- <div class="form-group">
     <label for="inputAddress">Address</label>

@@ -13,10 +13,13 @@ class Category(models.Model):
 class Event(models.Model):
     title = models.CharField(max_length=30)
     detail = models.CharField(max_length=255)
+    event_datetime = models.DateTimeField()
     featured = models.BooleanField(default=False)
     last_updated = models.DateTimeField(auto_now_add=True)
     created_at = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(User, related_name='topics',on_delete=models.CASCADE)
+    def __str__(self):
+        return self.title + " by " + self.created_by.username
 
 
 class Interest(models.Model):

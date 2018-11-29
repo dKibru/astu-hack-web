@@ -3,114 +3,196 @@
 
 {% block content %}
 
-<br><br>
+<h2>Dibibkosh</h2>
 <div class="row" style="height: 800">
 	<div id="mycanvas" class="col-md-8"></div>
 </div>
-
-
 {% load static %}
-<script src="{% static 'js/phaser3.min.js' %}" ></script>
+<script src="{% static 'bower_components/phaser/dist/phaser.min.js' %}" ></script>
 <script type="text/javascript">
+var BootScene = new Phaser.Class({
+ 
+    Extends: Phaser.Scene,
+ 
+    initialize:
+ 
+    function BootScene ()
+    {
+        Phaser.Scene.call(this, { key: 'BootScene' });
+    },
+ 
+    preload: function ()
+    {
+        // load the resources here
+    },
+ 
+    create: function ()
+    {
+        this.scene.start('WorldScene');
+    }
+});
+
+var totalTimeGiven = 50;
+var player;
+var coordinates = [];
+var polygon;
+var platforms;
+var graphics;
+var keys;
+var cursors;
+var velocity = 200;
+var rect;
+var enemies = [];
+var totalEnemies = 200;
+var graphics ;
+var groupConfig = {
+    classType: Phaser.GameObjects.Sprite,
+    defaultKey: null,
+    defaultFrame: null,
+    active: true,
+    maxSize: -1,
+    runChildUpdate: false,    // run gameObject.update() if true
+    createCallback: null,
+    removeCallback: null,
+    createMultipleCallback: null
+}
+var nowState = -1;
+var timedEvent;
+var text;
+var WorldScene = new Phaser.Class({
+    Extends: Phaser.Scene,
+    initialize:
+    function WorldScene (){
+        Phaser.Scene.call(this, { key: 'WorldScene' });
+    },
+    preload: function (){
+        this.load.image('bomb', "{% static 'assets/bomb.png' %}");
+        this.load.image('prize', "{% static 'assets/prize.png' %}",{ frameWidth: 48, frameHeight: 48 });
+        this.load.spritesheet('dude', "{% static 'assets/habesha.png' %}", { frameWidth: 150, frameHeight: 150 });
+    },
+    create: function (){
+        graphics = this.add.graphics({ fillStyle: { color: 0x0000ff } });
+        // console.log(this)
+        // enemies = WorldScene.add.group(groupConfig);
+        for (var i = 0; i < totalEnemies; i++) {
+            ww = (Math.random()*10000)%600;
+            hh = (Math.random()*10000)%600;
+            rect = new Phaser.Geom.Rectangle(ww,hh, 20, 20);
+            coordinates.push([ww,hh])
+            graphics.fillRectShape(rect);
+            enemies.push(rect);
+        }
+        player = this.physics.add.sprite(100, 450, 'dude');
+        player.setCollideWorldBounds(true);
+        cursors = this.input.keyboard.createCursorKeys();
+        keys = this.input.keyboard.addKeys('Q,A,S,R');
+        // create your world here
+    },
+    onEvent: function(){
+        console.log("dd")
+        nowState = 1;
+        graphics.clear();
+        player.setVelocityX(0);
+        player.setVelocityY(0);
+        this.redrawEnemies();
+        tt = this.test(player.x,player.y);
+        if (tt=="yes") {
+             this.physics.add.sprite(300, 300, 'prize').setScale(2,2);
+        }else{
+             this.physics.add.sprite(300, 300, 'bomb').setScale(5,5);
+        }
+    },
+    thestart: function(){
+        if(nowState!=0){
+            graphics.clear();
+            timedEvent = this.time.addEvent({ delay: totalTimeGiven*100, callback: this.onEvent, callbackScope: this });
+            text = this.add.text(32, 32);
+            nowState = 0;
+        }
+    },
+    update: function(){
+        if(nowState==0){
+            rest = totalTimeGiven - (timedEvent.getProgress()*totalTimeGiven)
+            text.setText('Left: ' + Math.floor(rest));
+            text.setColor('#5d6d08')
+            text.setFontSize(22)
+            console.log(text)
+        }
+        if(nowState==0){
+            if (cursors.left.isDown){
+                player.setVelocityX(-1*velocity);
+            }else if (cursors.right.isDown){
+                player.setVelocityX(velocity);
+            }else if (cursors.up.isDown){
+                player.setVelocityY(-1*velocity);
+            }else if (cursors.down.isDown){
+                player.setVelocityY(velocity);
+            }else{
+                player.setVelocityX(0);
+                player.setVelocityY(0);
+            }
+        }
+        if(keys.Q.isDown){
+            this.redraw();
+            console.log(nowState)
+            // console.log(coordinates)
+        }
+        if(keys.A.isDown){
+            var t = this.test(player.x,player.y);
+            console.log(t)
+            // console.log(player.x,player.y)
+            // console.log(enemies)
+        }
+        if(keys.S.isDown){
+            this.thestart()
+        }
+        if(keys.R.isDown){
+            this.scene.restart();
+        }
+    },
+    redrawEnemies: function(){
+        enemies.forEach(function(element) {
+            graphics.fillRectShape(element);
+        });
+        // nowState = 0;
+    },
+    removeEnemies: function(){
+        graphics.clear();
+        nowState = 1;
+    },
+    test: function(x,y){
+        for (var i = totalEnemies - 1; i >= 0; i--) {
+            xx = enemies[i].x;
+            yy = enemies[i].y;
+            // console.log(enemies[i].x)
+            if( ( Math.abs(x-xx) <= 20) && ( Math.abs(y-yy) <=20)  ){
+                // console.log(Math.abs(x-xx),Math.abs(y-yy))
+                return "no";
+            }
+        }
+        return "yes";
+    }
+});
+ 
+
 var config = {
     type: Phaser.AUTO,
-    width: 1000,
-    height: 500,
+    width: 600,
+    height: 600,
     parent: 'mycanvas',
+    backgroundColor : "#d7f442",
     physics: {
         default: 'arcade',
         arcade: {
-            gravity: { y: 300 },
+            // gravity: { y: 300 },
             debug: false
         }
     },
-    scene: {
-        preload: preload,
-        create: create,
-        update: update
-    }
+    scene: [
+        BootScene,
+        WorldScene
+    ]
 };
-
-var player;
-var stars;
-var bombs;
-var platforms;
-var cursors;
-var score = 0;
-var gameOver = false;
-var scoreText;
-var prize;
 var game = new Phaser.Game(config);
-
-function preload (){
-	this.load.image('sky', "{% static 'assets/backbuna.png' %}");
-	// this.load.image('sky', "{% static 'assets/sky.png' %}");
-	this.load.image('ground', "{% static 'assets/platform.png' %}");
-	this.load.image('star', "{% static 'assets/star.png' %}");
-	this.load.image('bomb', "{% static 'assets/bomb.png' %}");
-	this.load.image('prize', "{% static 'assets/prize.png' %}",{ frameWidth: 48, frameHeight: 48 });
-	this.load.spritesheet('dude', "{% static 'assets/haile.png' %}", { frameWidth: 150, frameHeight: 150 });
-	// this.load.spritesheet('dude', "{% static 'assets/habesha.png' %}", { frameWidth: 48, frameHeight: 48 });
-	// this.load.spritesheet('dude', "{% static 'assets/habesha.png' %}", { frameWidth: 32, frameHeight: 48 });
-}
-
-var platforms;
-function create (){
-    sky = this.add.image(0, 0, 'sky');
-    sky.setScale(5,5);
-    platforms = this.physics.add.staticGroup();
-    x = platforms.create(500, 516, 'ground');
-    x.setScale(4,0.5).refreshBody();
-
-    prize = this.physics.add.sprite(600, 50, 'prize');
-
-    player = this.physics.add.sprite(100, 450, 'dude');
-	player.setBounce(0.2);
-	player.setCollideWorldBounds(true);
-	// player.body.setGravityY(30)
-
-	this.cameras.main.setSize(800, 700);
-	this.cameras.main.startFollow(player);
-	// this.cameras.main.setBounds(0, 0, 3392, 100);
-    this.physics.world.setBounds(0, 0, 3392, 1000);
-
-	cursors = this.input.keyboard.createCursorKeys();
-	this.physics.add.collider(player, platforms);
-	this.physics.add.collider(prize, platforms);
-	this.physics.add.collider(prize, player);
-
-
-	var controlConfig = {
-        camera: this.cameras.main,
-        left: cursors.left,
-        right: cursors.right,
-        up: cursors.up,
-        down: cursors.down,
-        zoomIn: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.Q),
-        zoomOut: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E),
-        acceleration: 0.06,
-        drag: 0.0005,
-        maxSpeed: 1.0
-    };
-
-    controls = new Phaser.Cameras.Controls.SmoothedKeyControl(controlConfig);
-}
-
-
-
-function update(){
-	if (cursors.left.isDown){
-	    player.setVelocityX(-160);
-	}else if (cursors.right.isDown){
-	    player.setVelocityX(160);
-	}else{
-	    player.setVelocityX(0);
-	}
-	// if (cursors.up.isDown && player.body.touching.down){
-	if (cursors.up.isDown ){
-	    player.setVelocityY(-370);
-	}
-}
-
 </script>
 {% endblock %}

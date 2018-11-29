@@ -12,6 +12,8 @@ from django.http import HttpResponse
 from django.conf import settings
 from django.http import HttpResponseRedirect, HttpResponse
 from django.core.files.storage import FileSystemStorage
+# from dateutil import parser
+from dateutil.parser import *
 User = get_user_model()
 
 @login_required
@@ -20,7 +22,8 @@ def event(request):
 	if request.method == 'POST':
 		t = request.POST['title']
 		d = request.POST['detail']
-		e = Event(created_by = u, title = t, detail = d)
+		dt = request.POST['datetime']
+		e = Event(created_by = u, title = t, detail = d, event_datetime= parse(dt))
 		e.save()
 		for x in request.POST.getlist('categories'):
 			cat = Category.objects.get(pk=x)

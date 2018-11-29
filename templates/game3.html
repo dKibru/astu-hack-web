@@ -1,0 +1,137 @@
+{% extends 'base.html' %}
+
+
+{% block content %}
+
+<br>
+<div class="row" style="height: 800">
+	<div id="mycanvas" class="col-md-8"></div>
+</div>
+{% load static %}
+<script src="{% static 'bower_components/phaser/dist/phaser.min.js' %}" ></script>
+<script type="text/javascript">
+var config = {
+    type: Phaser.AUTO,
+    width: 600,
+    height: 600,
+    parent: 'mycanvas',
+    backgroundColor : "#d7f442",
+    physics: {
+        default: 'arcade',
+        arcade: {
+            // gravity: { y: 300 },
+            debug: false
+        }
+    },
+    scene: {
+        preload: preload,
+        create: create,
+        update: update
+    }
+};
+
+var groupConfig = {
+    classType: Phaser.GameObjects.Sprite,
+    defaultKey: null,
+    defaultFrame: null,
+    active: true,
+    maxSize: -1,
+    runChildUpdate: false,    // run gameObject.update() if true
+    createCallback: null,
+    removeCallback: null,
+    createMultipleCallback: null
+}
+
+var game = new Phaser.Game(config);
+var graphics ;
+var player;
+var coordinates = [];
+function preload (){
+    this.load.image('sky', "{% static 'assets/backbuna.png' %}");
+    // this.load.image('sky', "{% static 'assets/sky.png' %}");
+    this.load.image('ground', "{% static 'assets/platform.png' %}");
+    this.load.image('star', "{% static 'assets/star.png' %}");
+    this.load.image('bomb', "{% static 'assets/bomb.png' %}");
+    this.load.image('prize', "{% static 'assets/prize.png' %}",{ frameWidth: 48, frameHeight: 48 });
+    this.load.spritesheet('dude', "{% static 'assets/habesha.png' %}", { frameWidth: 150, frameHeight: 150 });
+    this.load.json('dude-shapes', "{% static 'game/habesha.json' %}");
+
+    // this.load.spritesheet('dude', "{% static 'assets/habesha.png' %}", { frameWidth: 48, frameHeight: 48 });
+    // this.load.spritesheet('dude', "{% static 'assets/habesha.png' %}", { frameWidth: 32, frameHeight: 48 });
+}
+var polygon;
+var platforms;
+var graphics;
+var keys;
+var cursors;
+var velocity = 200;
+var rect;
+var enemies;
+
+function create (){
+    graphics = this.add.graphics({ fillStyle: { color: 0x0000ff } });
+
+    // enemies = this.scene.add.group(groupConfig);
+
+    for (var i = 0; i < 300; i++) {
+        ww = (Math.random()*10000)%600;
+        hh = (Math.random()*10000)%600;
+        rect = new Phaser.Geom.Rectangle(ww,hh, 20, 20);
+        coordinates.push([ww,hh])
+        graphics.fillRectShape(rect);
+        // enemies.add(rect);
+    }
+
+    player = this.physics.add.sprite(100, 450, 'dude');
+    player.setCollideWorldBounds(true);
+    
+    cursors = this.input.keyboard.createCursorKeys();
+    keys = this.input.keyboard.addKeys('Q,A');
+
+    // enemies = this.physics.add.group({
+    //     key: 'star',
+    //     repeat: 11,
+    //     setXY: { x: 12, y: 0, stepX: 70 }
+    // });
+
+    // enemies.children.iterate(function (child) {
+
+    //     child.setBounceY(Phaser.Math.FloatBetween(0.4, 0.8));
+
+    // });
+
+//     bombs.children.iterate(function (child) {
+//     child.destroy();
+// });
+
+// bombs.clear(true);
+}
+
+
+
+function update(){
+	if (cursors.left.isDown){
+        player.setVelocityX(-1*velocity);
+    }else if (cursors.right.isDown){
+        player.setVelocityX(velocity);
+    }else if (cursors.up.isDown){
+        player.setVelocityY(-1*velocity);
+    }else if (cursors.down.isDown){
+        player.setVelocityY(velocity);
+    }else{
+        player.setVelocityX(0);
+        player.setVelocityY(0);
+    }
+    if(keys.Q.isDown){
+        // player.setVelocityX(0);
+        console.log(coordinates)
+    }
+    if(keys.A.isDown){
+        // player.setVelocityX(0);
+        console.log(this.scene)
+        // console.log(coordinates)
+    }
+}
+
+</script>
+{% endblock %}
